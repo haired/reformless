@@ -1,15 +1,19 @@
 {
   "name": "reformless",
   "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
-  },
+  "description": "Reformless helps you build form in React fast, easily and without all the usual boilerplate.",
+  "private": false,
+  "author": "Christian Kouame <christian.kouame@live.fr>",
+  "repository": "haired/reformless",
+  "keywords": [
+    "reformless",
+    "react",
+    "react-dom",
+    "form",
+    "validation",
+    "forms"
+  ],
+  "dependencies": {},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -19,16 +23,21 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "peerDependencies": {
+    "react": ">= 15.0.0",
+    "react-dom": ">= 15.0.0"
+  },
+  "devDependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "react-scripts": "3.4.1",
+    "tslint": "^6.1.1",
+    "tslint-react": "^4.2.0",
+    "typescript": "~3.7.2"
   }
 }
