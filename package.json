@@ -4,6 +4,7 @@
   "description": "Reformless helps you build form in React fast, easily and without all the usual boilerplate.",
   "private": false,
   "author": "Christian Kouame <christian.kouame@live.fr>",
+  "license": "MIT",
   "repository": "haired/reformless",
   "keywords": [
     "reformless",
@@ -13,12 +14,12 @@
     "validation",
     "forms"
   ],
+  "main": "dist/index.js",
   "dependencies": {},
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "webpack",
+    "test": "jest",
+    "lint": "eslint src/**.{ts,tsx,js,jsx}"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -28,16 +29,46 @@
     "react-dom": ">= 15.0.0"
   },
   "devDependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-react": "^7.9.4",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/node": "^13.11.0",
+    "@types/react": "^16.9.32",
+    "@types/react-dom": "^16.9.6",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
+    "babel-jest": "^25.3.0",
+    "babel-loader": "^8.1.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "react-scripts": "3.4.1",
-    "tslint": "^6.1.1",
-    "tslint-react": "^4.2.0",
-    "typescript": "~3.7.2"
+    "eslint": "^6.8.0",
+    "eslint-loader": "^4.0.0",
+    "eslint-plugin-react": "^7.19.0",
+    "jest": "^25.3.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "source-map-loader": "^0.2.4",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>tests"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>setupTest.ts"
+    ]
   }
 }

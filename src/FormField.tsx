@@ -1,6 +1,6 @@
 import React, { Component, InputHTMLAttributes, ReactElement } from 'react';
 import { Validator } from './types/validators';
-import { FormContext, FormContextType } from './types/FormContextType';
+import { FormContext, FormContextType } from './types/formContext';
 
 export type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   /** The name of the input field */

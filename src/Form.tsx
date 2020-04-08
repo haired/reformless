@@ -1,5 +1,5 @@
 import React, { Component, ChangeEvent } from 'react';
-import { FormContext } from './types/FormContextType';
+import { FormContext } from './types/formContext';
 import { FormFieldData, Validity } from './FormField';
 import { validateInput, readHtmlValidationErrors, crossValidation } from './validations';
 import { CrossValidator } from './types/validators';

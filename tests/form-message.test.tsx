@@ -1,7 +1,7 @@
 import { mount } from 'enzyme';
 import { FormErrorMessage } from '../src/FormErrorMessage';
 import React from 'react';
-import { FormContext, FormContextType } from '../src/types/FormContextType';
+import { FormContext, FormContextType } from '../src/types/formContext';
 import { Validity } from '../src/FormField';
 
 describe('Form Message component', () => {

@@ -1,5 +1,5 @@
 import React, { ReactNode, Component } from 'react';
-import { FormContext, FormContextType } from './FormContextType';
+import { FormContext, FormContextType } from './types/formContext';
 
 /* * The component to display an error on a field.
  * It can be used to show either form or field error. */
@@ -9,7 +9,6 @@ export class FormErrorMessage extends Component<FormErrorMessageProps> {
   render() {
     const { validatorName, fieldName, children } = this.props;
     const actualContext = this.context as FormContextType;
-
     const errors: string[] = [];
     if (actualContext) {
       if (fieldName) {

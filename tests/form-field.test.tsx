@@ -2,7 +2,7 @@ import React from 'react';
 import { FormField, FormFieldData, Validity } from '../src/FormField';
 import { mount } from 'enzyme';
 import { Validator } from '../src/types/validators';
-import { FormContext, FormContextType } from '../src/types/FormContextType';
+import { FormContext, FormContextType } from '../src/types/formContext';
 
 describe('Form Field', () => {
   const requiredValidator: Validator = {
