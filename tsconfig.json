@@ -1,10 +1,20 @@
 {
   "compilerOptions": {
-    "outDir": "/dist/",
-    "sourceMap": true,
-    "module": "commonjs",
-    "target": "es6",
+    "outDir": "dist/",
+    "module": "umd",
+    "outFile": "dist/index.d.ts",
+    "target": "es5",
+    "lib": [
+      "ES6",
+      "DOM"
+    ],
     "jsx": "react",
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "sourceMap": false,
+    "declaration": true,
+    "emitDeclarationOnly": true
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

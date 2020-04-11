@@ -93,7 +93,6 @@ export class FormField extends Component<FormFieldProps> {
     const children =
       this.props.children &&
       React.cloneElement(this.props.children as ReactElement, {
-        // name: this.props.name,
         defaultValue: this.props.defaultValue,
         defaultChecked: this.props.defaultChecked,
       });

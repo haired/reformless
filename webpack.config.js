@@ -6,7 +6,10 @@ module.exports = {
   entry: { index: './index.js' },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js'
+    filename: 'index.js',
+    library: 'reformless',
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
   module: {
     rules: [
@@ -28,5 +31,20 @@ module.exports = {
       'node_modules', path.resolve(__dirname, 'src')
     ],
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
+  },
+  externals: {
+    // Don't bundle react or react-dom
+    react: {
+      commonjs: "react",
+      commonjs2: "react",
+      amd: "React",
+      root: "React"
+    },
+    "react-dom": {
+      commonjs: "react-dom",
+      commonjs2: "react-dom",
+      amd: "ReactDOM",
+      root: "ReactDOM"
+    }
   }
 };

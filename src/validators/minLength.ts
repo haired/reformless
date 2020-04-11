@@ -1,4 +1,4 @@
-import { Validator } from '../validators';
+import { Validator } from '../types/validators';
 
 /** Specify the minimum length for a value. */
 export function minLength(length: number): Validator {
