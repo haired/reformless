@@ -4,8 +4,8 @@ After I spent some time with Reactive Form in angular, I was searching for a way
     
     
 # Installation
-You can use npm or yarn to fetch the library:
-<code>npm install reformless</code>
+You can use npm or yarn to fetch the library:    
+<code>npm install reformless</code>    
 <code>yarn add reformless</code>
     
     
@@ -28,7 +28,7 @@ This component is the root of your form, you should always have it. The Form kee
 ```
 #### Props
     
-**Validators: [CrossValidator]**     
+**Validators: CrossValidator[]**     
 This prop should have the list of “cross Validators”, which are validators you can use for multiple values (like checking that two fields values are equals). See below for more details.
      
 ***valueChanges: (values: { [name: string]: any }) => void***   
@@ -106,4 +106,68 @@ When you set this prop, you’re telling Reformless to show the child error mess
 Use this prop if you want the error message to be displayed for a validator. If you set only this prop, the error message will only be displayed if a cross validator returns invalid.   
 Used in conjunction with the fieldName prop, you tell Reformless to only show this error for a field and a particular validation.
 
+### Validation
+Reformless relies on validators to perform input validations. Validators are objects describing how the validation should be done. 
+There are two kind of validators: field validators (ironically, the type is Validator) and cross validators (the type is CrossValidator). They should be define like this: 
 
+```javascript
+/** Validate that a value is smaller than a certain threshold */
+export function max(value: number): Validator | CrossValidator {
+  return {
+    name: 'min',
+    validation: minValidation,
+    arguments: [value],
+  };
+}
+```
+***name***
+the name property hold the actual name of the validator. This name will be used to identify the validator result when using FormErrorMessage.  
+
+***arguments***
+They are additional arguments you want your validators to have when performing the validation. For exemple, implementing a minLength validation you want to add the min value as an argument.
+
+***validation***
+This is the function performing the validation. . Each validator type has its own validation function definition:    
+- field validator: the validation function should be defined like this : 
+```javascript
+function maxLengthValidation(value: any, length: number): boolean
+```   
+The function should accept as first parameter the value of the field, following by optional arguments (described earlier). This type is used for validation performed on only one field, like min length, email validators etc.
+- cross validator: described like this:
+```javascript
+function equalValidation(fields: { [name: string]: FormFieldData }, fieldsName: string[]): boolean
+```    
+The function should accept a dictionary of all the form fields, followed by optional arguments. This type of validator are used when you want to perform validation across multiple fields, like password confirmation.    
+Here is a typical example of a validator
+
+```javascript
+/** Validate that a value is smaller than a certain threshold */
+export function max(value: number): Validator {
+  return {
+    name: 'min',
+    validation: minValidation,
+    arguments: [value],
+  };
+}
+
+function minValidation(value: number, minValue: number) {
+  return Number(value) ? value <= minValue : false;
+}
+```
+
+#### Built-in validators
+There are some built-in validators provided in the library.    
+***email***: validate that a value is in a correct email format.    
+***max***: validate that  a value is smaller than a certain threshold provided as parameter.    
+***min***: validate that  a value is greater than a certain threshold provided as parameter.    
+***maxLength***: Specify the maximum length for a value.    
+***minLength***: Specify the minimum length for a value.      
+***required***: Mark a field as required.     
+***regex***: Validate a value against a regular expression. The pattern should be passed as a string (no ‘/’ at the start nor end of the value).      
+***equal***: A CrossValidator, validate that several fields have the same value. The fields name are passed as parameters.    
+
+#### Html validators
+When using html inputs directly, it is possible to use html validations (like required, maxLength etc.)
+```jsx
+<input name="name" required maxLength={15} />
+```
