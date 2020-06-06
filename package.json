@@ -1,6 +1,6 @@
 {
   "name": "reformless",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Reformless helps you build form in React fast, easily, painlessly and without all the usual boilerplate.",
   "author": "Christian Kouame <christian.kouame@live.fr>",
   "license": "MIT",
@@ -39,6 +39,8 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@babel/types": "^7.9.5",
+    "@types/enzyme": "^3.10.5",
+    "@types/jest": "^25.2.1",
     "@types/node": "^13.11.0",
     "@types/react": "^16.9.32",
     "@types/react-dom": "^16.9.6",

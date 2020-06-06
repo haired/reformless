@@ -3,6 +3,8 @@ import { FormField, FormFieldData, Validity } from '../src/FormField';
 import { mount } from 'enzyme';
 import { Validator } from '../src/types/validators';
 import { FormContext, FormContextType } from '../src/types/formContext';
+import { isMainThread } from 'worker_threads';
+import { wrap } from 'module';
 
 describe('Form Field', () => {
   const requiredValidator: Validator = {
@@ -77,7 +79,7 @@ describe('Form Field', () => {
     expect(wrapper.find('input').prop('value')).toEqual('Bailly');
   });
 
-  it('should read checked from context wrapping FormField', () => {
+  it('should read checkbox value from context wrapping FormField when checked', () => {
     const initialContext: FormContextType = {
       fields: {
         fan: {
@@ -99,7 +101,34 @@ describe('Form Field', () => {
       </FormContext.Provider>
     );
 
-    expect(wrapper.find('input').prop('checked')).toBeTruthy();
+    expect(wrapper.find('input').prop('checked')).toEqual(true);
+
+  });
+
+  it('should read checkbox value from context wrapping FormField when not checked', () => {
+    const initialContext: FormContextType = {
+      fields: {
+        fan: {
+          name: 'fan',
+          validators: [],
+          errors: [],
+          validity: Validity.VALID,
+          value: false,
+        },
+      },
+      errors: [],
+      setFieldInitialValue: jest.fn(),
+    };
+
+    const wrapper = mount(
+      <FormContext.Provider value={initialContext}>
+        <FormField type="checkbox" name="fan" />
+        );
+      </FormContext.Provider>
+    );
+
+    expect(wrapper.find('input').prop('checked')).toEqual(false);
+
   });
 
   it('should save validators to context at mount', () => {

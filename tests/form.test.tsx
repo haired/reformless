@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form } from '../src/Form';
 import { mount } from 'enzyme';
-import { Validity, FormField } from '../src/FormField';
+import { Validity, FormField, FormFieldData } from '../src/FormField';
 import { Validator, CrossValidator } from '../src/types/validators';
 import * as validations from '../src/validations';
 
@@ -35,7 +35,7 @@ describe('Form', () => {
     wrapper.simulate('change', changeEvent);
 
     expect(instance.setState).toHaveBeenCalledWith({
-      fields: { name: { name: 'name', value: 'giggs', validity: Validity.VALID, errors: [] } },
+      fields: { name: { name: 'name', value: 'giggs', validity: Validity.VALID, errors: [], validators: [] } },
       errors: [],
     });
   });
@@ -76,14 +76,21 @@ describe('Form', () => {
     };
 
     const wrapper = mount(<Form />);
-    const fields = { firstName: { name: 'firstName', value: 'RVN', validators: [sameValidator] } };
+    const field: FormFieldData = {
+      errors: [],
+      name: 'firstName',
+      validators: [sameValidator],
+      validity: Validity.PRISTINE,
+      value: 'RVN'
+    };
+    const fields = { [field.name]: field };
     wrapper.instance().state = { fields };
-    const spy = jest.spyOn(validations, 'validateInput');
+    const spy = jest.spyOn(validations, 'validateInput').mockReturnValue([]);
 
     const changeEvent = { target: { name: 'firstName', value: 'RVN' } };
     wrapper.simulate('change', changeEvent);
 
-    expect(spy).toHaveBeenCalledWith(fields.firstName);
+    expect(spy).toHaveBeenCalledWith(field);
   });
 
   it('should call cross validation check', () => {
@@ -130,5 +137,42 @@ describe('Form', () => {
     wrapper.simulate('change', changeEvent);
 
     expect(onValidityChange).toHaveBeenCalledWith(Validity.VALID);
+  });
+
+  it('should use checked value for checkbox', () => {
+    const wrapper = mount(<Form />);
+    const instance = wrapper.instance();
+    instance.setState = jest.fn();
+
+    let changeEvent = { target: { name: 'name', value: 'on', checked: true, type: 'checkbox' } };
+    wrapper.simulate('change', changeEvent);
+
+    const expectedField: FormFieldData = {
+      name: 'name',
+      value: true,
+      validity: Validity.VALID,
+      errors: [],
+      validators: []
+    };
+    expect(instance.setState).toHaveBeenCalledWith({
+      fields: { [expectedField.name]: expectedField },
+      errors: [],
+    });
+
+    changeEvent = { target: { name: 'name', value: 'on', checked: false, type: 'checkbox' } };
+    wrapper.simulate('change', changeEvent);
+
+    const expectedField2: FormFieldData = {
+      name: 'name',
+      value: false,
+      validity: Validity.VALID,
+      errors: [],
+      validators: []
+    };
+
+    expect(instance.setState).toHaveBeenCalledWith({
+      fields: { [expectedField2.name]: expectedField2 },
+      errors: [],
+    });
   });
 });
