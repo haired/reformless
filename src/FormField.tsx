@@ -64,11 +64,13 @@ export class FormField extends Component<FormFieldProps> {
 
   getValue = (): any => {
     const field = (this.context as FormContextType)?.fields[this.props.name];
-    if (field) {
-      return field.value;
-    }
-    return undefined;
+    return field ? field.value : undefined;
   };
+
+  checkBoxValue() {
+    let value = this.getValue() ? true : false;
+    return { checked: value };
+  }
 
   generateChildren = () => {
     const childInput = <input {...this.props} onChange={this.props.onChange || (() => ({}))} />;
@@ -79,12 +81,10 @@ export class FormField extends Component<FormFieldProps> {
           checked: childInput.props.value === this.getValue(),
         });
       case 'checkbox':
-        return React.cloneElement(childInput, {
-          checked: this.getValue(),
-        });
+        return React.cloneElement(childInput, this.checkBoxValue());
       default:
         return React.cloneElement(childInput, {
-          value: this.getValue(),
+          value: this.getValue() || "",
         });
     }
   };

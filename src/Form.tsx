@@ -21,49 +21,73 @@ export class Form extends Component<FormProps, FormState> {
     }));
   };
 
-  onFieldChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, validity } = event.target;
+  constructFieldData({ name, value, checked, type }: EventTarget & HTMLInputElement): FormFieldData {
+    const fieldValue = type === 'checkbox' ? checked : value;
+    const field: FormFieldData = this.state.fields[name] || {
+      validity: Validity.PRISTINE,
+      errors: [],
+      name: '',
+      value: '',
+      validators: []
+    };
 
-    let { fields } = this.state;
+    field.name = name;
+    field.value = fieldValue;
 
-    const errors: string[] = [];
-    const newField = { ...this.state.fields[name], name, value };
+    return field;
+  }
 
-    fields = { ...this.state.fields, [name]: newField };
+  validateAndUpdate(target: EventTarget & HTMLInputElement) {
+    const newField = this.constructFieldData(target);
 
-    // html validations
-    const htmlValidationResult = readHtmlValidationErrors(validity);
-    errors.push(...htmlValidationResult);
+    const htmlValidationResult = readHtmlValidationErrors(target.validity);
+    const customValidationResult = validateInput(newField);
+    newField.errors = htmlValidationResult.concat(customValidationResult);
 
-    // custom validations
-    const customValidationResult = validateInput(fields[name]);
-    errors.push(...customValidationResult);
+    newField.validity = newField.errors.length > 0 ? Validity.INVALID : Validity.VALID;
 
-    // cross validations
+    return newField;
+  }
+
+  validateForm(fields: { [key: string]: FormFieldData }): string[] {
     const globalErrors = [];
+
     if (this.props.validators) {
       const crossValidations = crossValidation(fields, this.props.validators);
       globalErrors.push(...crossValidations);
     }
 
-    const fieldValidity = errors.length > 0 ? Validity.INVALID : Validity.VALID;
+    return globalErrors;
+  }
 
-    if (this.props.valuesChange) {
-      this.props.valuesChange(this.formatFormValue(fields));
-    }
-
-    const formValidity = this.getValidity(fields);
+  fireValidityChange(fields: { [key: string]: FormFieldData }, globalError: string[]) {
+    const formValidity = this.getValidity(fields, globalError);
     if (this.props.validityChange && this.state.validity !== formValidity) {
       this.props.validityChange(formValidity);
     }
+  }
+
+  fireValueChangeCallback(fields: { [key: string]: FormFieldData }) {
+    if (this.props.valuesChange) {
+      this.props.valuesChange(this.formatFormValue(fields));
+    }
+  }
+
+  onFieldChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+    const newField = this.validateAndUpdate(target);
+
+    let fields = { ...this.state.fields };
+    fields[target.name] = newField;
+
+    const globalErrors = this.validateForm(fields);
 
     this.setState({
-      fields: {
-        ...fields,
-        [name]: { ...newField, validity: fieldValidity, errors },
-      },
+      fields: fields,
       errors: globalErrors,
     });
+
+    this.fireValidityChange(fields, globalErrors);
+    this.fireValueChangeCallback(fields);
   };
 
   formatFormValue = (fields: { [name: string]: FormFieldData }) => {
@@ -78,18 +102,19 @@ export class Form extends Component<FormProps, FormState> {
     return values;
   };
 
-  getValidity = (fields: { [name: string]: FormFieldData }) => {
+  getValidity = (fields: { [name: string]: FormFieldData }, globalError: string[]) => {
     const errors = [];
+    const areFieldswithErrors = Object.values(fields).some(f => f.errors && f.errors.length > 0);
     for (const name in fields) {
       if (name) {
         const field = fields[name];
-        if (field.errors) {
+        if (field.errors && field.errors.length > 0) {
           errors.push(field.errors);
         }
       }
     }
 
-    return errors.length === 0 ? Validity.VALID : Validity.INVALID;
+    return areFieldswithErrors && globalError.length > 0 ? Validity.INVALID : Validity.VALID;
   };
 
   render() {
