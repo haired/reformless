@@ -1,6 +1,7 @@
-import React, { Component, InputHTMLAttributes, ReactElement } from 'react';
+import React, { Component, InputHTMLAttributes, ReactElement, ChangeEvent, ContextType, useEffect, useContext, SelectHTMLAttributes, useMemo } from 'react';
 import { Validator } from './types/validators';
 import { FormContext, FormContextType } from './types/formContext';
+import { readHtmlValidationErrors, validateInput } from './validations';
 
 export type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   /** The name of the input field */
@@ -8,6 +9,7 @@ export type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   /** A list of validator that will be used to validate the value of this field. */
   validators?: Validator[];
   children?: ReactElement;
+  initialvalue?: string | number | boolean;
 };
 
 /** Data representing the current state of a field */
@@ -26,76 +28,104 @@ export enum Validity {
   PRISTINE,
 }
 
+type MemoInput = InputHTMLAttributes<HTMLInputElement> & {
+  contextValue: number | string | string[];
+  contextChecked: boolean;
+}
+
 /** Component responsible to encapsulate your input.
  * It can be used with or without any children by using the same props as you input.
  * If you decide to use it with a children, you should put the 'name' props and the input children should be the direct child.
  */
-export class FormField extends Component<FormFieldProps> {
-  static contextType = FormContext;
+export function FormField(props: FormFieldProps) {
 
-  componentDidMount() {
-    this.initializeField();
+  const context = useContext(FormContext);
+  const value = getValue();
+  let propValue;
+  if (typeof value === 'boolean') {
+    propValue = { checked: value as boolean };
+  } else {
+    propValue = { value };
   }
 
-  componentDidUpdate(prevProps: FormFieldProps) {
-    if (prevProps.validators !== this.props.validators) {
-      this.initializeField();
+  const inputField = useMemo(() => (
+    <InputFormField
+      {...props} onChange={onChange} key={props.name}
+      {...propValue} />
+  ), [context?.fields[props.name]]
+  );
+
+  const children = props.children ? useMemo(() => React.cloneElement(props.children, {
+    name: props.name,
+    value: getValue(),
+    onChange: onChange
+  }), [context?.fields[props.name]]) : null;
+
+  useEffect(
+    () => initializeField(),
+    []
+  );
+
+  function getCheckBoxValue(context: FormContextType): boolean {
+    const value = getContextValue(context);
+    return value ? true : false;
+  }
+
+  function getRadioValue(context: FormContextType): string | number | boolean {
+    return getContextValue(context) == props.value;
+  }
+
+  function getContextValue(context: FormContextType): string | number | boolean {
+    if (context == undefined) {
+      return props.initialvalue;
     }
+
+    return context?.fields[props.name]?.value || props.initialvalue;
   }
 
-  initializeField = () => {
-    const context = this.context as FormContextType;
+  function initializeField() {
     if (context) {
-      let field = context.fields[this.props.name];
-      if (field) {
-        field.validators = this.props.validators || [];
-      } else {
-        field = {
-          name: this.props.name,
-          value: this.getValue(),
-          validators: this.props.validators || [],
-          validity: Validity.PRISTINE,
-          errors: [],
-        };
-      }
-      context.setFieldInitialValue(field);
+      context.setFieldValue(props.name, getValue(), []);
     }
-  };
-
-  getValue = (): any => {
-    const field = (this.context as FormContextType)?.fields[this.props.name];
-    return field ? field.value : undefined;
-  };
-
-  checkBoxValue() {
-    let value = this.getValue() ? true : false;
-    return { checked: value };
   }
 
-  generateChildren = () => {
-    const childInput = <input {...this.props} onChange={this.props.onChange || (() => ({}))} />;
+  function handleInputChange({ target }: ChangeEvent<HTMLInputElement>) {
+    const htmlValidationResult = readHtmlValidationErrors(target.validity);
+    const value = target.type == 'checkbox' ? target.checked : target.value;
+    const customValidationResult = validateInput(props.validators, value);
 
-    switch (this.props.type) {
+    // save value and errors in context
+    (context as FormContextType).setFieldValue(
+      target.name,
+      value,
+      htmlValidationResult.concat(customValidationResult)
+    );
+  }
+
+  function onChange(event: ChangeEvent<HTMLInputElement & HTMLSelectElement & HTMLTextAreaElement>) {
+    handleInputChange(event);
+    props.onChange && props.onChange(event);
+  }
+
+  function getValue() {
+    switch (props.type) {
       case 'radio':
-        return React.cloneElement(childInput, {
-          checked: childInput.props.value === this.getValue(),
-        });
+        return getRadioValue(context);
       case 'checkbox':
-        return React.cloneElement(childInput, this.checkBoxValue());
+        return getCheckBoxValue(context);
       default:
-        return React.cloneElement(childInput, {
-          value: this.getValue() || "",
-        });
+        return getContextValue(context);
     }
-  };
-
-  render() {
-    const children =
-      this.props.children &&
-      React.cloneElement(this.props.children as ReactElement, {
-        defaultValue: this.props.defaultValue,
-        defaultChecked: this.props.defaultChecked,
-      });
-    return <FormContext.Consumer>{() => children || this.generateChildren()}</FormContext.Consumer>;
   }
+
+  return props.children ? children : inputField;
+}
+
+function InputFormField(props: InputHTMLAttributes<HTMLInputElement> & FormFieldProps & MemoInput) {
+
+  return (
+    <FormContext.Consumer>
+      {() => <input {...props} onChange={props.onChange} />}
+    </FormContext.Consumer>
+  );
 }

@@ -5,7 +5,7 @@ export function max(value: number): Validator {
   return {
     name: 'min',
     validation: minValidation,
-    arguments: [value],
+    arguments: value,
   };
 }
 

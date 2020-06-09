@@ -5,7 +5,7 @@ export function minLength(length: number): Validator {
   return {
     name: 'minLength',
     validation: minLengthValidation,
-    arguments: [length],
+    arguments: length,
   };
 }
 

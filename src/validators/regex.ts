@@ -1,15 +1,15 @@
 import { Validator } from '../types/validators';
 
-/** Validate a value against a regular expression. The pattern should be passed as a string (no / at the start nor end of the value) */
-export function regex(pattern: string): Validator {
+/** Validate a value against a regular expression */
+export function regex(pattern: RegExp | string): Validator {
   return {
     name: 'regex',
     validation: regexValidation,
-    arguments: [pattern],
+    arguments: pattern,
   };
 }
 
-function regexValidation(value: any, pattern: string) {
-  const regexp = RegExp(pattern);
-  return regexp.test(value);
+function regexValidation(value: any, pattern: string | RegExp) {
+  const pat = typeof pattern == 'string' ? RegExp(pattern) : pattern;
+  return pat.test(value);
 }

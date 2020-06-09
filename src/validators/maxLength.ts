@@ -5,7 +5,7 @@ export function maxLength(length: number): Validator {
   return {
     name: 'MaxLength',
     validation: maxLengthValidation,
-    arguments: [length],
+    arguments: length,
   };
 }
 

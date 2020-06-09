@@ -6,7 +6,7 @@ import { FormFieldData } from '../FormField';
 export interface Validator {
   name: string;
   validation: (value: any, ...rest: any[]) => boolean;
-  arguments?: any[];
+  arguments?: any;
 }
 
 /** Interface to be implemented by all validations using different fields values. */

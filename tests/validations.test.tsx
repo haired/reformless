@@ -1,4 +1,4 @@
-import { readHtmlValidationErrors, validateInput, crossValidation } from '../src/validations';
+import { readHtmlValidationErrors, crossValidation, validateInput } from '../src/validations';
 import { Validity } from '../src/FormField';
 import { Validator, CrossValidator } from '../src/types/validators';
 
@@ -30,7 +30,7 @@ describe('Validations methods', () => {
       },
     };
 
-    const result = validateInput(field.password);
+    const result = validateInput(field.password.validators, field.password.value);
 
     expect(result).toEqual([]);
   });
@@ -51,7 +51,7 @@ describe('Validations methods', () => {
       },
     };
 
-    const result = validateInput(field.password);
+    const result = validateInput(field.password.validators, field.password.value);
 
     expect(result).toEqual(['minlength']);
   });

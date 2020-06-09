@@ -1,27 +1,21 @@
 import React from 'react';
-import { FormField, FormFieldData, Validity } from '../src/FormField';
+import { FormField, Validity } from '../src/FormField';
 import { mount } from 'enzyme';
-import { Validator } from '../src/types/validators';
 import { FormContext, FormContextType } from '../src/types/formContext';
-import { isMainThread } from 'worker_threads';
-import { wrap } from 'module';
 
 describe('Form Field', () => {
-  const requiredValidator: Validator = {
-    validation: (value: any) => value.length > 0,
-    name: 'requiredMock',
-  };
 
   it('should render default FormField', () => {
     const wrapper = mount(<FormField name="firstName" />);
 
     expect(wrapper.find('input').prop('name')).toEqual('firstName');
+    expect(wrapper.find('input').text()).toEqual('');
   });
 
-  it('should render default FormField value', () => {
-    const wrapper = mount(<FormField name="firstName" defaultValue="Eric" />);
+  it('should render  FormField initial value', () => {
+    const wrapper = mount(<FormField name="firstName" initialvalue="Eric" />);
 
-    expect(wrapper.find('input').prop('defaultValue')).toEqual('Eric');
+    expect(wrapper.find('input').prop('value')).toEqual('Eric');
   });
 
   it('should render radio FormField', () => {
@@ -34,24 +28,38 @@ describe('Form Field', () => {
     const wrapper = mount(<FormField name="pass" type="checkbox" />);
 
     expect(wrapper.find('input').prop('type')).toEqual('checkbox');
+    expect(wrapper.find('input').prop('checked')).toEqual(false);
   });
 
   it('should render password FormField', () => {
-    const wrapper = mount(<FormField name="pass" type="password" />);
+    const wrapper = mount(<FormField name="password" type="password" />);
 
     expect(wrapper.find('input').prop('type')).toEqual('password');
   });
 
-  it('should render wrapper input', () => {
+  it('should render textarea input', () => {
     const wrapper = mount(
-      <FormField name="pass" type="password">
-        <div>
-          <textarea defaultValue="Glory Man Utd" />
-        </div>
+      <FormField name="team" type="password" initialvalue="Glory Man Utd">
+        <textarea />
       </FormField>
     );
 
+    expect(wrapper.find('textarea').prop('name')).toEqual('team');
     expect(wrapper.find('textarea').text()).toEqual('Glory Man Utd');
+  });
+
+  it('should render select input', () => {
+    const wrapper = mount(
+      <FormField name="team">
+        <select>
+          <option value={20}>Glory Man Utd</option>
+          <option value={1}>Shame on City</option>
+        </select>
+      </FormField>
+    );
+
+    expect(wrapper.find('option').first().prop('value')).toEqual(20);
+    expect(wrapper.find('select').prop('name')).toEqual('team');
   });
 
   it('should read value from context wrapping FormField', () => {
@@ -66,13 +74,12 @@ describe('Form Field', () => {
         },
       },
       errors: [],
-      setFieldInitialValue: jest.fn(),
+      setFieldValue: jest.fn(),
     };
 
     const wrapper = mount(
       <FormContext.Provider value={initialContext}>
         <FormField name="lastName" />
-        );
       </FormContext.Provider>
     );
 
@@ -91,7 +98,7 @@ describe('Form Field', () => {
         },
       },
       errors: [],
-      setFieldInitialValue: jest.fn(),
+      setFieldValue: jest.fn()
     };
 
     const wrapper = mount(
@@ -117,7 +124,7 @@ describe('Form Field', () => {
         },
       },
       errors: [],
-      setFieldInitialValue: jest.fn(),
+      setFieldValue: jest.fn()
     };
 
     const wrapper = mount(
@@ -131,62 +138,33 @@ describe('Form Field', () => {
 
   });
 
-  it('should save validators to context at mount', () => {
-    const setField = jest.fn();
-    const initialContextValue: FormContextType = {
-      setFieldInitialValue: setField,
-      fields: {},
+  it('should send checked value for checkbox', () => {
+    const setFieldValue = jest.fn();
+
+    const initialContext: FormContextType = {
+      fields: {
+        fan: {
+          name: 'fan',
+          validators: [],
+          errors: [],
+          validity: Validity.VALID,
+          value: false,
+        },
+      },
       errors: [],
+      setFieldValue,
     };
-
-    mount(
-      <FormContext.Provider value={initialContextValue}>
-        <FormField name="team" validators={[requiredValidator]} />
-      </FormContext.Provider>
-    );
-
-    const expectedField: FormFieldData = {
-      name: 'team',
-      validity: Validity.PRISTINE,
-      value: undefined,
-      errors: [],
-      validators: [requiredValidator],
-    };
-    expect(setField).toHaveBeenCalledWith(expectedField);
-  });
-
-  it('should save validators to context at update', () => {
-    const setField = jest.fn();
-    const initialContextValue: FormContextType = {
-      setFieldInitialValue: setField,
-      errors: [],
-      fields: {},
-    };
-
-    const newValidator = jest.fn();
-    const minValidator: Validator = {
-      validation: newValidator,
-      name: 'minMock',
-    };
-
-    const newProps = { name: 'myteam', validators: [minValidator] };
 
     const wrapper = mount(
-      <FormContext.Provider value={initialContextValue}>
-        <FormField {...newProps} />
+      <FormContext.Provider value={initialContext}>
+        <FormField type="checkbox" name="fan" />
       </FormContext.Provider>
     );
 
-    const instance = wrapper.instance();
-    instance?.componentDidUpdate({}, {});
+    const event = { target: { name: "fan", checked: true, type: 'checkbox' } };
+    wrapper.find('input').simulate('change', event);
 
-    const expectedField: FormFieldData = {
-      name: 'myteam',
-      validity: Validity.PRISTINE,
-      value: undefined,
-      errors: [],
-      validators: [minValidator],
-    };
-    expect(setField).toHaveBeenLastCalledWith(expectedField);
+    expect(setFieldValue).toHaveBeenCalledTimes(2);
+    expect(setFieldValue).toHaveBeenLastCalledWith('fan', true, []);
   });
 });

@@ -6,5 +6,5 @@ export const FormContext = React.createContext<FormContextType | null>(null);
 export type FormContextType = {
   fields: { [name: string]: FormFieldData };
   errors: string[];
-  setFieldInitialValue: (field: FormFieldData) => void;
+  setFieldValue: (name: string, value: string | number | boolean, errors: string[]) => void;
 };

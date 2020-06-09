@@ -1,6 +1,6 @@
 # Introduction
 Right, so here is another form library. I heard you! But …
-After I spent some time with Reactive Form in angular, I was searching for a way to make form easier to use, without all the boilerplate we use to have in react.
+I was searching for a way to make form easier to use, without all the boilerplate we use to have in react.
     
     
 # Installation
@@ -15,7 +15,41 @@ The aim is to create forms effortlessly, and most of form we used have simple re
     
 ### Basic example
 ```jsx 
-code sample
+<Form valuesChange={valueChange} validityChange={validityChange} validators={[equal('password', 'verifyPassword')]}>
+  <FormField
+    validators={[minLength(2), required]}
+    name="password"
+    type="password"
+  />
+
+  <FormErrorMessage fieldName="password" validatorName='required'>
+    <div>
+      <b>This field is required</b>
+    </div>
+  </FormErrorMessage>
+  <FormErrorMessage validatorName="minLength" fieldName='password'>Minimum length is 2</FormErrorMessage>
+
+  <FormField name="verifyPassword" />
+  <FormErrorMessage validatorName="equal">The password should match</FormErrorMessage>
+
+  <FormField name="checkbox" type="checkbox" />
+
+  <FormField name="resume" initialvalue="me">
+    <textarea />
+  </FormField>
+
+  <FormField name="buddy">
+    <select>
+      <option value={0}>Chris</option>
+      <option value={1}>Didier</option>
+    </select>
+  </FormField>
+
+  <FormField name="radio" value="one" type="radio" />
+  <FormField name="radio" value="two" type="radio" />
+
+  <button onClick={sendData} disabled={validity !== Validity.VALID}>Send data</button>
+</Form>
 ```
     
     
@@ -39,31 +73,29 @@ The function passed to this prop will be called every time the validity of the f
      
 #### Children
      
-The children of the Form component can either be: 
-- Some FormField : useful if you need validators. 
-- Some html input : in that case, do not forget to fill the name attribute.
-It is possible to mix the two types of children.
-    
-> The FormField component relies on event bubbling, you should not stop the propagation of the a change event inside any of the children.
-     
+You can put everything you want inside the Form component, but the fields you want to track should be FormField.
      
 ### FormField
       
 This component can be used inside a Form to encapsulate an input. It aims to remove the burden of defining a change event, even for simple input. You ***should always*** pass a name prop to the component.
       
+> The FormField component relies on event bubbling, you should not stop the propagation of the a change event inside any of the children.
+
 #### Simple input field
 You can define simple input this way. All inputs props are supported:
 ```jsx
-<FormField name="firstname" default/>
+<FormField name="firstname" default  initialvalue="Chris"/>
 ```
 A password field can be defined like this:
 ```jsx
-<FormField name="password" type=”password”/>
+<FormField name="password" type="password"/>
 ```
 A radio field:
 ```jsx
-<FormField name="radio" value="one" type="radio" />
+<FormField name="radio" value="one" type="radio"/>
 ```
+>  The initial value can be set via the props initialvalue
+
 You get the idea, for all input having a type attribute, FormField can used liked showed.
      
 #### Custom Fields
@@ -77,8 +109,13 @@ For all others html field, like select or textarea, you can wrap them with FormF
     <option value={1}>Didier</option>
   </select>
 </FormField>
+
+<FormField name="buddy" initialvalue="Chris">
+  <textarea/>
+</FormField>
 ```
 > It is also possible to pass your own onChange handler but remember not to stop the propagation of the event.
+> The initial value for textarea can also be set.
 
 #### Props
     
@@ -93,7 +130,6 @@ The list of validators applied to the field. See below for more details on valid
 This component wraps the content you want to show when one or more validations fails. 
 ```jsx
 <FormErrorMessage fieldName="password">ERREUR on password</FormErrorMessage>
-  <FormField name="verifyPassword" />
 <FormErrorMessage validatorName="equal">ERREUR on verifiy password</FormErrorMessage>
 ```
        
@@ -151,7 +187,7 @@ export function max(value: number): Validator {
 }
 
 function minValidation(value: number, minValue: number) {
-  return Number(value) ? value <= minValue : false;
+  return value >= minValue;
 }
 ```
 
@@ -163,11 +199,12 @@ There are some built-in validators provided in the library.
 ***maxLength***: Specify the maximum length for a value.    
 ***minLength***: Specify the minimum length for a value.      
 ***required***: Mark a field as required.     
-***regex***: Validate a value against a regular expression. The pattern should be passed as a string (no ‘/’ at the start nor end of the value).      
+***regex***: Validate a value against a regular expression.      
 ***equal***: A CrossValidator, validate that several fields have the same value. The fields name are passed as parameters.    
 
 #### Html validators
-When using html inputs directly, it is possible to use html validations (like required, maxLength etc.)
+It is possible to use html validations (like required, maxLength etc.)
 ```jsx
-<input name="name" required maxLength={15} />
+<FormField name="name" required maxLength={15} />
 ```
+> As of version 0.5, using directly an html input inside a form is no more supported, you should use a FormField.

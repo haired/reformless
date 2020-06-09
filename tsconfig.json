@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "outDir": "dist/",
+    "outDir": "dist",
     "module": "umd",
-    "outFile": "dist/index.d.ts",
     "target": "es5",
     "lib": [
       "ES6",
@@ -12,7 +11,8 @@
     "esModuleInterop": true,
     "sourceMap": false,
     "declaration": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "allowJs": true
   },
   "include": [
     "src/**/*"

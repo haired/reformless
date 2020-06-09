@@ -230,6 +230,12 @@ describe('Validators', () => {
       expect(result).toBeTruthy();
     });
 
+    it('should return true when regex matches', () => {
+      const validator = regex(/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$/);
+      const result = validator.validation('christian.kouame@live.fr', validator.arguments);
+      expect(result).toBeTruthy();
+    });
+
     it('should return false when regex dont matches', () => {
       const validator = regex(
         'https?://(www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)'
